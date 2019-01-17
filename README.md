@@ -60,7 +60,7 @@ users:
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
