@@ -1,2 +1,83 @@
 ---
 # tasks file for ansible-user
+
+- name: create groups
+  become: yes
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ users_groups }}"
+
+- name: create user
+  become: yes
+  user:
+    name: "{{ item.key }}"
+    password: "{{ item.value.password | default(omit) }}"
+    group: "{{ item.value.group | default(omit) }}"
+    groups: "{{ item.value.groups | default([]) | join(',') }}"
+    update_password: on_create
+    shell: /bin/bash
+    generate_ssh_key: "{{ item.value.generate_ssh_key | default(omit) }}"
+  with_dict: "{{ users }}"
+  when: item.value.skip_creation is undefined or item.value.skip_creation
+
+- name: add ssh keys from url
+  become: yes
+  authorized_key:
+    user: "{{ item.key }}"
+    key: "{{ item.value.ssh_keys_url }}"
+  with_dict: "{{ users }}"
+  when: item.value.ssh_keys_url is defined
+
+- name: add ssh keys
+  become: yes
+  authorized_key:
+    user: "{{ item.key }}"
+    key: "{{ item.value.ssh_keys | join('\n') }}"
+  with_dict: "{{ users }}"
+  when: item.value.ssh_keys is defined
+
+- name: ensure .ssh folder exists in home directory
+  become: yes
+  file:
+    path: ~{{ item.key }}/.ssh
+    state: directory
+    owner: "{{ item.key }}"
+    group: "{{ item.value.group | default(omit) }}"
+    mode: "0700"
+  with_dict: "{{ users }}"
+  when: item.value.ssh_key_private is defined or item.value.ssh_key_public is defined
+
+- name: install ssh private key
+  become: yes
+  copy:
+    content: "{{ item.value.ssh_key_private }}"
+    dest: ~{{ item.key }}/.ssh/id_rsa
+    owner: "{{ item.key }}"
+    group: "{{ item.value.group | default(omit) }}"
+    mode: "0600"
+  with_dict: "{{ users }}"
+  when: item.value.ssh_key_private is defined
+
+- name: install ssh public key
+  become: yes
+  copy:
+    content: "{{ item.value.ssh_key_public }}"
+    dest: ~{{ item.key }}/.ssh/id_rsa.pub
+    owner: "{{ item.key }}"
+    group: "{{ item.value.group | default(omit) }}"
+    mode: "0600"
+  with_dict: "{{ users }}"
+  when: item.value.ssh_key_public is defined
+
+- name: set up ps1
+  become: yes
+  lineinfile:
+    path: ~{{ item.key }}/.bashrc
+    regexp: "/^(\\s*)PS1=.*\\\\033/"
+    line: "\\1PS1='{{ item.ps1 }}'"
+    owner: "{{ item.key }}"
+    group: "{{ item.value.group | default(omit) }}"
+    mode: "0644"
+  with_dict: "{{ users }}"
+  when: item.value.ps1 is defined
