@@ -1,2 +1,11 @@
 ---
 # defaults file for ansible-user
+
+users_groups:
+  - admins
+users:
+  admin:
+    password: X5,P_~j'W-zM#qGfG\Mzi48tSka^wHSdRn9O|g|8=bdc3\c0-1C8\kuZ8ZXkpUVso;ANj'&UwBI'fy#'r/XHsIt0`rz-,tmdTV^ucnw,UhB9O_xFCe4b$Pkr0:YRBR^!
+    group: admins
+    groups:
+      - sudo
