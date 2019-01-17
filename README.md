@@ -1,31 +1,61 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+Ansible role to set up users and groups.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## 'users_group'
+
+- list of groups that will be created
+
+## 'users'
+
+
+**Required**
+
+- `password` 
+
+**Optional**
+
+- `group`
+- `groups`
+- `ssh_keys` 
+- `ssh_keys_url`
+- `generate_ssh_key`
+- `ssh_key_public`
+- `ssh_key_private`
+- `ps1`
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+---
+users_groups:
+  - superadmins
+  - secondgroup
+users:
+  smeuser:
+    password: Itt1k|*Jmdi$15m3HnyRo!fZG*Fm&xtE-YS"Ub?sHSVp"W?SICle^?6D@.PKQ:LX,,L,~PgbPT"r&#j1mrP&W!x\!WZSgOUo7h?k!0EPLEKsBzdz_+\H/,JFur/HV@10
+    ssh_keys_url: https://some-url.com/ssh-keys
+    generate_ssh_key: yes
+    group: superadmins
+    groups:
+      - secondgroup
+      - sudo
+```
 
 License
 -------
